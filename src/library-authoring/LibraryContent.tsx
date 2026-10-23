@@ -1,13 +1,13 @@
-import { useEffect } from 'react';
-import { LoadingSpinner } from '../generic/Loading';
-import { useSearchContext } from '../search-manager';
+import { useEffect, useRef } from 'react';
+import { LoadingSpinner } from '@src/generic/Loading';
+import { useSearchContext } from '@src/search-manager';
+import { useLoadOnScroll } from '@src/hooks';
 import { NoComponents, NoSearchResults } from './EmptyStates';
 import { useLibraryContext } from './common/context/LibraryContext';
 import { useSidebarContext } from './common/context/SidebarContext';
 import CollectionCard from './components/CollectionCard';
 import ComponentCard from './components/ComponentCard';
 import { ContentType } from './routes';
-import { useLoadOnScroll } from '../hooks';
 import messages from './collections/messages';
 import ContainerCard from './containers/ContainerCard';
 
@@ -30,6 +30,7 @@ const LibraryItemCard = {
 };
 
 const LibraryContent = ({ contentType = ContentType.home }: LibraryContentProps) => {
+  const contentRef = useRef<HTMLDivElement>(null);
   const {
     hits,
     totalHits,
@@ -53,7 +54,8 @@ const LibraryContent = ({ contentType = ContentType.home }: LibraryContentProps)
     hasNextPage,
     isFetchingNextPage,
     fetchNextPage,
-    true,
+    !isPending && totalHits > 0,
+    contentRef,
   );
 
   if (isPending) {
@@ -75,7 +77,7 @@ const LibraryContent = ({ contentType = ContentType.home }: LibraryContentProps)
   }
 
   return (
-    <div className="library-cards-grid">
+    <div className="library-cards-grid" ref={contentRef}>
       {hits.map((contentHit) => {
         const CardComponent = LibraryItemCard[contentHit.type] || ComponentCard;
 
